@@ -21,8 +21,7 @@ class BlackSeedApp extends StatelessWidget {
         colorScheme: const ColorScheme.dark(
           primary: Color(0xFF00CBA9), // Calm Teal
           secondary: Color(0xFF5FFFD7), // Mint
-          surface: Color(0xFF1E2432), // Deep Midnight Navy
-          background: Color(0xFF1A1D29), // Deep Charcoal
+          surface: Color(0xFF1E2432), // Deep Charcoal
         ),
         textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
         useMaterial3: true,

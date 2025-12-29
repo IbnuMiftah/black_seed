@@ -5,10 +5,10 @@
 // 'flutter create' template.
 
 // The application's name. By default this is also the title of the Flutter window.
-PRODUCT_NAME = balck_seed
+PRODUCT_NAME = black_seed
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.example.balckSeed
+PRODUCT_BUNDLE_IDENTIFIER = com.example.blackSeed
 
 // The copyright displayed in application information
 PRODUCT_COPYRIGHT = Copyright © 2025 com.example. All rights reserved.

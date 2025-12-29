@@ -1,4 +1,4 @@
-# balck_seed
+# black_seed
 
 A new Flutter project.
 
