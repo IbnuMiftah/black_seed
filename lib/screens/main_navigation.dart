@@ -34,12 +34,12 @@ class _MainNavigationState extends State<MainNavigation> {
           borderRadius: BorderRadius.circular(32),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withAlpha(77),
-              blurRadius: 20,
+              color: Colors.black.withAlpha(102),
+              blurRadius: 24,
               offset: const Offset(0, 8),
             ),
             BoxShadow(
-              color: const Color(0xFF00CBA9).withAlpha(26),
+              color: const Color(0xFF00CBA9).withAlpha(51),
               blurRadius: 30,
               spreadRadius: 2,
             ),
@@ -51,8 +51,19 @@ class _MainNavigationState extends State<MainNavigation> {
             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    const Color(0xFF1E2432).withAlpha(230),
+                    const Color(0xFF1A1D29).withAlpha(230),
+                  ],
+                ),
                 borderRadius: BorderRadius.circular(32),
+                border: Border.all(
+                  color: const Color(0xFF00CBA9).withAlpha(77),
+                  width: 1,
+                ),
               ),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
@@ -96,7 +107,7 @@ class _MainNavigationState extends State<MainNavigation> {
   }) {
     final bool isActive = _currentIndex == index;
     final Color activeColor = const Color(0xFF00CBA9);
-    final Color inactiveColor = const Color(0xFF9CA3AF);
+    final Color inactiveColor = Colors.white.withAlpha(128);
 
     return Expanded(
       child: Material(
