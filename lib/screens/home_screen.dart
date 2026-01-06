@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import 'library_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -339,6 +340,13 @@ class HomeScreen extends StatelessWidget {
                             ],
                             iconColor: const Color(0xFF4E9FFF),
                             decorationColor: const Color(0xFF4E9FFF).withAlpha(26),
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => const LibraryScreen(),
+                                ),
+                              );
+                            },
                           ),
                           _buildQuickActionCard(
                             icon: Icons.bookmark_outline,
@@ -383,6 +391,7 @@ class HomeScreen extends StatelessWidget {
     required List<Color> gradientColors,
     required Color iconColor,
     required Color decorationColor,
+    VoidCallback? onTap,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -411,9 +420,7 @@ class HomeScreen extends StatelessWidget {
           child: Material(
             color: Colors.transparent,
             child: InkWell(
-              onTap: () {
-                // TODO: Handle action
-              },
+              onTap: onTap,
               borderRadius: BorderRadius.circular(28),
               child: Stack(
                 children: [
