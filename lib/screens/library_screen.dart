@@ -148,16 +148,6 @@ class _LibraryScreenState extends State<LibraryScreen> {
                               ),
                             ),
                           ),
-                          IconButton(
-                            onPressed: () {
-                              // TODO: Voice search
-                            },
-                            icon: Icon(
-                              Icons.mic,
-                              color: const Color(0xFF00CBA9).withAlpha(204),
-                              size: 22,
-                            ),
-                          ),
                           const SizedBox(width: 8),
                         ],
                       ),

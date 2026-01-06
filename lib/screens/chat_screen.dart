@@ -72,6 +72,9 @@ class _ChatScreenState extends State<ChatScreen> {
               
               // Input field
               _buildInputField(),
+              
+              // Spacing for Bottom Navigation Bar
+              const SizedBox(height: 110),
             ],
           ),
         ),
