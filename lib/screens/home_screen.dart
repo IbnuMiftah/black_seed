@@ -178,117 +178,9 @@ class HomeScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 32),
 
-                      // Start Chat Button with Voice Input
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              height: 64,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(32),
-                                gradient: LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [
-                                    Colors.white.withAlpha(26),
-                                    Colors.white.withAlpha(13),
-                                  ],
-                                ),
-                                border: Border.all(
-                                  color: Colors.white.withAlpha(51),
-                                  width: 1,
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withAlpha(51),
-                                    blurRadius: 20,
-                                    offset: const Offset(0, 8),
-                                  ),
-                                ],
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(32),
-                                child: BackdropFilter(
-                                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                                  child: Material(
-                                    color: Colors.transparent,
-                                    child: InkWell(
-                                      onTap: () {
-                                        onTabChange(1); // Navigate to Chat (Index 1)
-                                      },
-                                      borderRadius: BorderRadius.circular(32),
-                                      child: const Padding(
-                                        padding: EdgeInsets.symmetric(horizontal: 24),
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              Icons.chat_bubble_outline,
-                                              color: Color(0xFF00CBA9),
-                                              size: 24,
-                                            ),
-                                            SizedBox(width: 12),
-                                            Text(
-                                              'Start Chat',
-                                              style: TextStyle(
-                                                fontFamily: 'Inter',
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w600,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          // Voice Input Button
-                          Container(
-                            width: 64,
-                            height: 64,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: const LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [
-                                  Color(0xFF00CBA9),
-                                  Color(0xFF5FFFD7),
-                                ],
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: const Color(0xFF00CBA9).withAlpha(80), // Reduced from 128
-                                  blurRadius: 16,
-                                  spreadRadius: 2,
-                                ),
-                              ],
-                            ),
-                            child: Material(
-                              color: Colors.transparent,
-                              child: InkWell(
-                                onTap: () {
-                                  // TODO: Start voice input
-                                },
-                                customBorder: const CircleBorder(),
-                                child: const Center(
-                                  child: Icon(
-                                    Icons.mic,
-                                    color: Color(0xFF1A1D29),
-                                    size: 28,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+
+
                       const SizedBox(height: 40),
 
                       // Quick Actions Header
@@ -369,6 +261,9 @@ class HomeScreen extends StatelessWidget {
                       ),
 
                       const SizedBox(height: 40),
+                      
+                      // Spacing for Bottom Navigation Bar
+                      const SizedBox(height: 110),
                     ],
                   ),
                 ),
