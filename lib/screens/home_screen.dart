@@ -3,7 +3,12 @@ import 'dart:ui';
 import 'library_screen.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  final Function(int) onTabChange;
+
+  const HomeScreen({
+    super.key,
+    required this.onTabChange,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -211,7 +216,7 @@ class HomeScreen extends StatelessWidget {
                                     color: Colors.transparent,
                                     child: InkWell(
                                       onTap: () {
-                                        // TODO: Navigate to chat
+                                        onTabChange(1); // Navigate to Chat (Index 1)
                                       },
                                       borderRadius: BorderRadius.circular(32),
                                       child: const Padding(
@@ -317,6 +322,9 @@ class HomeScreen extends StatelessWidget {
                             ],
                             iconColor: const Color(0xFFFF6B6B),
                             decorationColor: const Color(0xFFFF6B6B).withAlpha(26),
+                            onTap: () {
+                              onTabChange(1); // Navigate to Chat (Index 1)
+                            },
                           ),
                           _buildQuickActionCard(
                             icon: Icons.library_books_outlined,
@@ -329,11 +337,7 @@ class HomeScreen extends StatelessWidget {
                             iconColor: const Color(0xFF4E9FFF),
                             decorationColor: const Color(0xFF4E9FFF).withAlpha(26),
                             onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => const LibraryScreen(),
-                                ),
-                              );
+                              onTabChange(2); // Navigate to Library (Index 2)
                             },
                           ),
                           _buildQuickActionCard(
@@ -346,6 +350,9 @@ class HomeScreen extends StatelessWidget {
                             ],
                             iconColor: const Color(0xFFB084FF),
                             decorationColor: const Color(0xFFB084FF).withAlpha(26),
+                            onTap: () {
+                              onTabChange(2); // Navigate to Library (Index 2)
+                            },
                           ),
                           _buildQuickActionCard(
                             icon: Icons.emergency,
@@ -360,6 +367,7 @@ class HomeScreen extends StatelessWidget {
                           ),
                         ],
                       ),
+
                       const SizedBox(height: 40),
                     ],
                   ),
