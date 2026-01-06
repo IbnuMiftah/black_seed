@@ -29,24 +29,19 @@ class _MainNavigationState extends State<MainNavigation> {
       body: _screens[_currentIndex],
       extendBody: true,
       bottomNavigationBar: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        margin: const EdgeInsets.fromLTRB(40, 0, 40, 30), // Increased margins for smaller width & higher float
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(32),
+          borderRadius: BorderRadius.circular(40), // More rounded
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withAlpha(102),
-              blurRadius: 24,
-              offset: const Offset(0, 8),
-            ),
-            BoxShadow(
-              color: const Color(0xFF00CBA9).withAlpha(51),
-              blurRadius: 30,
-              spreadRadius: 2,
+              color: Colors.black.withAlpha(80),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
             ),
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(32),
+          borderRadius: BorderRadius.circular(40),
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
             child: Container(
@@ -59,14 +54,14 @@ class _MainNavigationState extends State<MainNavigation> {
                     const Color(0xFF1A1D29).withAlpha(230),
                   ],
                 ),
-                borderRadius: BorderRadius.circular(32),
+                borderRadius: BorderRadius.circular(40),
                 border: Border.all(
-                  color: const Color(0xFF00CBA9).withAlpha(77),
+                  color: const Color(0xFF00CBA9).withAlpha(50),
                   width: 1,
                 ),
               ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10), // Reduced vertical padding
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [

@@ -47,7 +47,7 @@ class HomeScreen extends StatelessWidget {
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF00CBA9).withAlpha(102),
+                            color: const Color(0xFF00CBA9).withAlpha(60), // Reduced from 102
                             blurRadius: 12,
                             spreadRadius: 2,
                           ),
@@ -119,7 +119,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 32),
 
-                      // Medical Disclaimer - Radiant and visible
+                      // Medical Disclaimer - Tone down glow
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
@@ -128,26 +128,14 @@ class HomeScreen extends StatelessWidget {
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                             colors: [
-                              const Color(0xFF00CBA9).withAlpha(51),
-                              const Color(0xFF5FFFD7).withAlpha(38),
+                              Colors.white.withAlpha(20), // More subtle glass
+                              Colors.white.withAlpha(10),
                             ],
                           ),
                           border: Border.all(
-                            color: const Color(0xFF00CBA9).withAlpha(128),
-                            width: 1.5,
+                            color: Colors.white.withAlpha(26),
+                            width: 1,
                           ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFF00CBA9).withAlpha(77),
-                              blurRadius: 20,
-                              spreadRadius: 2,
-                            ),
-                            BoxShadow(
-                              color: const Color(0xFF5FFFD7).withAlpha(51),
-                              blurRadius: 30,
-                              spreadRadius: 1,
-                            ),
-                          ],
                         ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(24),
@@ -158,12 +146,12 @@ class HomeScreen extends StatelessWidget {
                                 Container(
                                   padding: const EdgeInsets.all(10),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFF00CBA9).withAlpha(77),
+                                    color: const Color(0xFF00CBA9).withAlpha(26), // Subtle Teal
                                     shape: BoxShape.circle,
                                   ),
                                   child: const Icon(
                                     Icons.info_outline,
-                                    color: Color(0xFF5FFFD7),
+                                    color: Color(0xFF00CBA9),
                                     size: 20,
                                   ),
                                 ),
@@ -174,8 +162,8 @@ class HomeScreen extends StatelessWidget {
                                     style: TextStyle(
                                       fontFamily: 'Inter',
                                       fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                      color: const Color(0xFF5FFFD7).withAlpha(230),
+                                      fontWeight: FontWeight.w400,
+                                      color: Colors.white.withAlpha(204), // Clean white text
                                       height: 1.4,
                                     ),
                                   ),
@@ -271,7 +259,7 @@ class HomeScreen extends StatelessWidget {
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color(0xFF00CBA9).withAlpha(128),
+                                  color: const Color(0xFF00CBA9).withAlpha(80), // Reduced from 128
                                   blurRadius: 16,
                                   spreadRadius: 2,
                                 ),
@@ -407,7 +395,7 @@ class HomeScreen extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: iconColor.withAlpha(51),
+            color: Colors.black.withAlpha(60), // Changed from colored glow to subtle black shadow
             blurRadius: 16,
             offset: const Offset(0, 8),
           ),
