@@ -196,34 +196,14 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Popular Articles Section
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'Popular Articles',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 20,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              // TODO: View all
-                            },
-                            child: Text(
-                              'VIEW ALL',
-                              style: TextStyle(
-                                fontFamily: 'Inter',
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: const Color(0xFF00CBA9).withAlpha(204),
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                          ),
-                        ],
+                      const Text(
+                        'Popular Articles',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
                       ),
 
                       const SizedBox(height: 16),
@@ -379,7 +359,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -455,6 +435,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                   ],
                 ),
               ],
+            ],
             ),
           ),
         ),
@@ -488,7 +469,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Row(
             children: [
               Expanded(
