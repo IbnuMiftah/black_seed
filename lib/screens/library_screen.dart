@@ -159,7 +159,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
               const SizedBox(height: 24),
 
               // Category Tabs
-              Padding(
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: Row(
                   children: List.generate(

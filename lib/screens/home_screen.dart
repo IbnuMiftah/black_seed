@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'library_screen.dart';
+import 'emergency_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   final Function(int) onTabChange;
@@ -256,6 +257,13 @@ class HomeScreen extends StatelessWidget {
                             ],
                             iconColor: const Color(0xFFFFAB40),
                             decorationColor: const Color(0xFFFFAB40).withAlpha(26),
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => const EmergencyScreen(),
+                                ),
+                              );
+                            },
                           ),
                         ],
                       ),
