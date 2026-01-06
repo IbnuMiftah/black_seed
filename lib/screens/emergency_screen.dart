@@ -222,10 +222,13 @@ class EmergencyScreen extends StatelessWidget {
                         color: Colors.white.withAlpha(26),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
-                        Icons.phone_enabled_rounded,
-                        color: Colors.white,
-                        size: 24,
+                      child: Transform.flip(
+                        flipX: true,
+                        child: const Icon(
+                          Icons.phone_enabled_rounded,
+                          color: Colors.white,
+                          size: 24,
+                        ),
                       ),
                     ),
                   ],

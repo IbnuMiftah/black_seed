@@ -210,11 +210,11 @@ class HomeScreen extends StatelessWidget {
                             title: 'Symptom\nChecker',
                             subtitle: 'Analyze signs',
                             gradientColors: [
-                              const Color(0xFFFF6B6B).withAlpha(77),
-                              const Color(0xFFFF8E8E).withAlpha(51),
+                              const Color(0xFFFFAB40).withAlpha(77),
+                              const Color(0xFFFFBD5B).withAlpha(51),
                             ],
-                            iconColor: const Color(0xFFFF6B6B),
-                            decorationColor: const Color(0xFFFF6B6B).withAlpha(26),
+                            iconColor: const Color(0xFFFFAB40),
+                            decorationColor: const Color(0xFFFFAB40).withAlpha(26),
                             onTap: () {
                               onTabChange(1); // Navigate to Chat (Index 1)
                             },
@@ -252,11 +252,11 @@ class HomeScreen extends StatelessWidget {
                             title: 'Emergency',
                             subtitle: 'Get help now',
                             gradientColors: [
-                              const Color(0xFFFFAB40).withAlpha(77),
-                              const Color(0xFFFFBD5B).withAlpha(51),
+                              const Color(0xFFFF6B6B).withAlpha(77),
+                              const Color(0xFFFF8E8E).withAlpha(51),
                             ],
-                            iconColor: const Color(0xFFFFAB40),
-                            decorationColor: const Color(0xFFFFAB40).withAlpha(26),
+                            iconColor: const Color(0xFFFF6B6B),
+                            decorationColor: const Color(0xFFFF6B6B).withAlpha(26),
                             onTap: () {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
