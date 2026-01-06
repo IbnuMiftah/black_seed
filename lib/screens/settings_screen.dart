@@ -264,8 +264,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   ),
                                   child: Row(
                                     children: [
-                                      _buildLanguageOption('EN', true),
-                                      _buildLanguageOption('AM', false), // Amharic
+                                      _buildLanguageOption('EN', _selectedLanguage == 'EN'),
+                                      _buildLanguageOption('AM', _selectedLanguage == 'AM'), // Amharic
                                     ],
                                   ),
                                 ),
@@ -424,21 +424,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _buildGlassCard({required Widget child, EdgeInsetsGeometry? padding}) {
     return Container(
-      padding: padding ?? const EdgeInsets.all(20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.white.withAlpha(20), // Slightly clearer integration
-            Colors.white.withAlpha(10),
-          ],
-        ),
-        border: Border.all(
-          color: Colors.white.withAlpha(26),
-          width: 1,
-        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withAlpha(51),
@@ -451,7 +438,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
         borderRadius: BorderRadius.circular(24),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: child,
+          child: Container(
+            padding: padding ?? const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.white.withAlpha(20),
+                  Colors.white.withAlpha(10),
+                ],
+              ),
+              border: Border.all(
+                color: Colors.white.withAlpha(26),
+                width: 1,
+              ),
+            ),
+            child: child,
+          ),
         ),
       ),
     );
@@ -460,7 +464,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _buildLanguageOption(String text, bool isSelected) {
     return GestureDetector(
       onTap: () {
-        // TODO: Handle language switch
+        setState(() {
+          _selectedLanguage = text;
+        });
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -529,35 +535,41 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildSupportItem(IconData icon, String title, {bool isDestructive = false, Color? iconColor}) {
-    return InkWell(
-      onTap: () {
-        // TODO: Handle tap
-      },
-      child: Row(
-        children: [
-          Icon(
-            icon,
-            color: iconColor ?? Colors.white.withAlpha(179),
-            size: 24,
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Text(
-              title,
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: isDestructive ? const Color(0xFFFF6B6B) : Colors.white,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          // TODO: Handle tap
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Row(
+            children: [
+              Icon(
+                icon,
+                color: iconColor ?? Colors.white.withAlpha(179),
+                size: 24,
               ),
-            ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: isDestructive ? const Color(0xFFFF6B6B) : Colors.white,
+                  ),
+                ),
+              ),
+              Icon(
+                Icons.chevron_right,
+                color: Colors.white.withAlpha(102),
+                size: 20,
+              ),
+            ],
           ),
-          Icon(
-            Icons.chevron_right,
-            color: Colors.white.withAlpha(102),
-            size: 20,
-          ),
-        ],
+        ),
       ),
     );
   }
