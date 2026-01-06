@@ -263,6 +263,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
                       ),
 
                       const SizedBox(height: 40),
+                      
+                      // Spacing for Bottom Navigation Bar
+                      const SizedBox(height: 110),
                     ],
                   ),
                 ),

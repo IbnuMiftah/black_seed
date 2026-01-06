@@ -11,6 +11,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   // State variables
   bool _notificationsEnabled = true;
+  bool _offlineMode = false;
   String _selectedLanguage = 'EN';
   String _selectedTextSize = 'Medium';
   final List<String> _textSizes = ['Small', 'Medium', 'Large'];
@@ -332,26 +333,60 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       const SizedBox(height: 16),
 
                       _buildGlassCard(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        child: Column(
                           children: [
-                            _buildSettingItemHeader(
-                              Icons.notifications_active,
-                              const Color(0xFFFF6B6B),
-                              'Notifications',
-                              subtitle: 'Updates & Tips',
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                _buildSettingItemHeader(
+                                  Icons.notifications_active,
+                                  const Color(0xFFFF6B6B),
+                                  'Notifications',
+                                  subtitle: 'Updates & Tips',
+                                ),
+                                Switch(
+                                  value: _notificationsEnabled,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _notificationsEnabled = value;
+                                    });
+                                  },
+                                  activeColor: const Color(0xFF00CBA9),
+                                  activeTrackColor: const Color(0xFF00CBA9).withAlpha(77),
+                                  inactiveThumbColor: Colors.white.withAlpha(179),
+                                  inactiveTrackColor: Colors.white.withAlpha(26),
+                                ),
+                              ],
                             ),
-                            Switch(
-                              value: _notificationsEnabled,
-                              onChanged: (value) {
-                                setState(() {
-                                  _notificationsEnabled = value;
-                                });
-                              },
-                              activeColor: const Color(0xFF00CBA9),
-                              activeTrackColor: const Color(0xFF00CBA9).withAlpha(77),
-                              inactiveThumbColor: Colors.white.withAlpha(179),
-                              inactiveTrackColor: Colors.white.withAlpha(26),
+                            
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 16),
+                              child: Divider(color: Colors.white10, height: 1),
+                            ),
+
+                            // Offline Mode Toggle
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                _buildSettingItemHeader(
+                                  Icons.wifi_off_rounded,
+                                  const Color(0xFF5FFFD7), // Mint
+                                  'Offline Mode',
+                                  subtitle: 'Save data',
+                                ),
+                                Switch(
+                                  value: _offlineMode,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _offlineMode = value;
+                                    });
+                                  },
+                                  activeColor: const Color(0xFF00CBA9),
+                                  activeTrackColor: const Color(0xFF00CBA9).withAlpha(77),
+                                  inactiveThumbColor: Colors.white.withAlpha(179),
+                                  inactiveTrackColor: Colors.white.withAlpha(26),
+                                ),
+                              ],
                             ),
                           ],
                         ),
