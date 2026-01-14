@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "479702107786",
+    "project_id": "black-seed-app",
+    "storage_bucket": "black-seed-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:479702107786:android:5aa465078fe33d3a09cf73",
+        "android_client_info": {
+          "package_name": "com.example.black_seed"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "479702107786-vr26ijcdaori8pvtoa5ponemsocko2cc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.black_seed",
+            "certificate_hash": "e89db566f6075e79376d2b634cf96a3226a1f579"
+          }
+        },
+        {
+          "client_id": "479702107786-sj9dpi9j4og7fmn10mulkssovm5pokc9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_TNoUgi-8eT_Ray6jA5z6p_V-Gsu_-Cg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "479702107786-sj9dpi9j4og7fmn10mulkssovm5pokc9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "479702107786-vjil8bb2i0uil4b0jg1pfjmrfel21tu7.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.blackSeed"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

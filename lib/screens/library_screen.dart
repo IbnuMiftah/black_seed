@@ -100,7 +100,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
               // Search Bar
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child:Container(
+                child: Container(
                   height: 56,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(28),
@@ -166,12 +166,18 @@ class _LibraryScreenState extends State<LibraryScreen> {
                   children: List.generate(
                     _tabs.length,
                     (index) => Padding(
-                      padding: EdgeInsets.only(right: index < _tabs.length - 1 ? 12 : 0),
-                      child: _buildCategoryTab(_tabs[index], index == _selectedTabIndex, () {
-                        setState(() {
-                          _selectedTabIndex = index;
-                        });
-                      }),
+                      padding: EdgeInsets.only(
+                        right: index < _tabs.length - 1 ? 12 : 0,
+                      ),
+                      child: _buildCategoryTab(
+                        _tabs[index],
+                        index == _selectedTabIndex,
+                        () {
+                          setState(() {
+                            _selectedTabIndex = index;
+                          });
+                        },
+                      ),
                     ),
                   ),
                 ),
@@ -208,21 +214,24 @@ class _LibraryScreenState extends State<LibraryScreen> {
                             _buildArticleCard(
                               title: 'Indigestion',
                               subtitle: 'Stomach & Digestion',
-                              description: 'Discomfort in your upper abdomen. Guides on triggers, relief postures, and safe OTC...',
+                              description:
+                                  'Discomfort in your upper abdomen. Guides on triggers, relief postures, and safe OTC...',
                               isOffline: true,
                             ),
                             const SizedBox(width: 16),
                             _buildArticleCard(
                               title: 'Headache',
                               subtitle: 'Neurology & Pain',
-                              description: 'Identification of tension, migraine, or cluster headaches with pressure point relief...',
+                              description:
+                                  'Identification of tension, migraine, or cluster headaches with pressure point relief...',
                               isOffline: true,
                             ),
                             const SizedBox(width: 16),
                             _buildArticleCard(
                               title: 'Cuts & Scrapes',
                               subtitle: 'First Aid',
-                              description: 'Step-by-step cleaning and dressing instructions to prevent infection for minor...',
+                              description:
+                                  'Step-by-step cleaning and dressing instructions to prevent infection for minor...',
                               isOffline: true,
                             ),
                           ],
@@ -264,7 +273,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                       ),
 
                       const SizedBox(height: 40),
-                      
+
                       // Spacing for Bottom Navigation Bar
                       const SizedBox(height: 110),
                     ],
@@ -289,9 +298,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
               ? const Color(0xFF00CBA9)
               : Colors.white.withAlpha(13),
           border: Border.all(
-            color: isSelected
-                ? Colors.transparent
-                : Colors.white.withAlpha(26),
+            color: isSelected ? Colors.transparent : Colors.white.withAlpha(26),
             width: 1,
           ),
           boxShadow: isSelected
@@ -310,7 +317,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
             fontFamily: 'Inter',
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: isSelected ? const Color(0xFF1A1D29) : Colors.white.withAlpha(204),
+            color: isSelected
+                ? const Color(0xFF1A1D29)
+                : Colors.white.withAlpha(204),
           ),
         ),
       ),
@@ -331,15 +340,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Colors.white.withAlpha(26),
-            Colors.white.withAlpha(13),
-          ],
+          colors: [Colors.white.withAlpha(26), Colors.white.withAlpha(13)],
         ),
-        border: Border.all(
-          color: Colors.white.withAlpha(38),
-          width: 1,
-        ),
+        border: Border.all(color: Colors.white.withAlpha(38), width: 1),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withAlpha(51),
@@ -355,81 +358,81 @@ class _LibraryScreenState extends State<LibraryScreen> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          style: const TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          subtitle,
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 13,
-                            fontWeight: FontWeight.w400,
-                            color: const Color(0xFF00CBA9).withAlpha(179),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Icon(
-                    Icons.chevron_right,
-                    color: Colors.white.withAlpha(128),
-                    size: 24,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 14),
-              Text(
-                description,
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                  color: Colors.white.withAlpha(179),
-                  height: 1.5,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              if (isOffline) ...[
-                const SizedBox(height: 14),
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Icon(
-                      Icons.offline_pin,
-                      color: const Color(0xFF00CBA9).withAlpha(179),
-                      size: 16,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      'AVAILABLE OFFLINE',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFF00CBA9).withAlpha(179),
-                        letterSpacing: 0.5,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            title,
+                            style: const TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            subtitle,
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 13,
+                              fontWeight: FontWeight.w400,
+                              color: const Color(0xFF00CBA9).withAlpha(179),
+                            ),
+                          ),
+                        ],
                       ),
+                    ),
+                    Icon(
+                      Icons.chevron_right,
+                      color: Colors.white.withAlpha(128),
+                      size: 24,
                     ),
                   ],
                 ),
+                const SizedBox(height: 14),
+                Text(
+                  description,
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                    color: Colors.white.withAlpha(179),
+                    height: 1.5,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (isOffline) ...[
+                  const SizedBox(height: 14),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.offline_pin,
+                        color: const Color(0xFF00CBA9).withAlpha(179),
+                        size: 16,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        'AVAILABLE OFFLINE',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF00CBA9).withAlpha(179),
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ],
-            ],
             ),
           ),
         ),
@@ -437,10 +440,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
     );
   }
 
-  Widget _buildSavedSessionCard(
-    String title,
-    String timestamp,
-  ) {
+  Widget _buildSavedSessionCard(String title, String timestamp) {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -448,15 +448,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Colors.white.withAlpha(20),
-            Colors.white.withAlpha(10),
-          ],
+          colors: [Colors.white.withAlpha(20), Colors.white.withAlpha(10)],
         ),
-        border: Border.all(
-          color: Colors.white.withAlpha(26),
-          width: 1,
-        ),
+        border: Border.all(color: Colors.white.withAlpha(26), width: 1),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
@@ -465,40 +459,40 @@ class _LibraryScreenState extends State<LibraryScreen> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      timestamp,
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 12,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.white.withAlpha(128),
+                      const SizedBox(height: 2),
+                      Text(
+                        timestamp,
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 12,
+                          fontWeight: FontWeight.w400,
+                          color: Colors.white.withAlpha(128),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              Icon(
-                Icons.chevron_right,
-                color: Colors.white.withAlpha(102),
-                size: 20,
-              ),
-            ],
-          ),
+                Icon(
+                  Icons.chevron_right,
+                  color: Colors.white.withAlpha(102),
+                  size: 20,
+                ),
+              ],
+            ),
           ),
         ),
       ),

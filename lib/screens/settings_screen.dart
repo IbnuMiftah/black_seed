@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../providers/auth_provider.dart';
+import '../providers/settings_provider.dart';
+import 'login_signup_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -9,12 +14,76 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  // State variables
-  bool _notificationsEnabled = true;
-  bool _offlineMode = false;
-  String _selectedLanguage = 'EN';
-  String _selectedTextSize = 'Medium';
   final List<String> _textSizes = ['Small', 'Medium', 'Large'];
+
+  Future<void> _handleLogout() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1E2432),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: const Text(
+          'Log Out?',
+          style: TextStyle(color: Colors.white),
+        ),
+        content: const Text(
+          'Are you sure you want to log out?',
+          style: TextStyle(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.white70),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text(
+              'Log Out',
+              style: TextStyle(color: Color(0xFFFF6B6B)),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
+      
+      await authProvider.signOut();
+      await settingsProvider.clearSettings();
+      
+      if (mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const LoginSignupScreen()),
+          (route) => false,
+        );
+      }
+    }
+  }
+
+  Future<void> _launchUrl(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Could not open link'),
+            backgroundColor: const Color(0xFFFF6B6B),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -103,293 +172,328 @@ class _SettingsScreenState extends State<SettingsScreen> {
               // Scrollable Content
               Expanded(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 100), // Extra bottom padding for nav bar
+                  padding: const EdgeInsets.fromLTRB(
+                    20,
+                    0,
+                    20,
+                    100,
+                  ), // Extra bottom padding for nav bar
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildSectionHeader('ACCOUNT'),
                       const SizedBox(height: 16),
-                      
+
                       // Profile Card
-                      _buildGlassCard(
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 60,
-                              height: 60,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.white.withAlpha(26),
-                                border: Border.all(
-                                  color: const Color(0xFF00CBA9),
-                                  width: 2,
+                      Consumer<AuthProvider>(
+                        builder: (context, authProvider, child) {
+                          final user = authProvider.user;
+                          return _buildGlassCard(
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 60,
+                                  height: 60,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.white.withAlpha(26),
+                                    border: Border.all(
+                                      color: const Color(0xFF00CBA9),
+                                      width: 2,
+                                    ),
+                                  ),
+                                  child: ClipOval(
+                                    child: user?.photoURL != null
+                                        ? Image.network(
+                                            user!.photoURL!,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (_, __, ___) => Icon(
+                                              Icons.person,
+                                              size: 40,
+                                              color: Colors.white.withAlpha(204),
+                                            ),
+                                          )
+                                        : Icon(
+                                            Icons.person,
+                                            size: 40,
+                                            color: Colors.white.withAlpha(204),
+                                          ),
+                                  ),
                                 ),
-                              ),
-                              child: ClipOval(
-                                child: Icon(
-                                  Icons.person,
-                                  size: 40,
-                                  color: Colors.white.withAlpha(204),
-                                ),
-                                // In a real app, use Image.asset or network image here
-                                // child: Image.asset('assets/images/user.png', fit: BoxFit.cover),
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      const Text(
-                                        'Dr. Almaz Bekele',
+                                      Row(
+                                        children: [
+                                          Flexible(
+                                            child: Text(
+                                              user?.displayName ?? user?.email?.split('@')[0] ?? 'User',
+                                              style: const TextStyle(
+                                                fontFamily: 'Inter',
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.w700,
+                                                color: Colors.white,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Container(
+                                            padding: const EdgeInsets.all(4),
+                                            decoration: const BoxDecoration(
+                                              color: Color(0xFF00CBA9),
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: const Icon(
+                                              Icons.check,
+                                              size: 10,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        user?.email ?? 'No email',
                                         style: TextStyle(
                                           fontFamily: 'Inter',
-                                          fontSize: 18,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.white.withAlpha(153),
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // Stats Row (Only Checkups as requested)
+                      Consumer<AuthProvider>(
+                        builder: (context, authProvider, child) {
+                          return Row(
+                            children: [
+                              Expanded(
+                                child: _buildGlassCard(
+                                  padding: const EdgeInsets.symmetric(vertical: 24),
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        '${authProvider.checkupCount}',
+                                        style: const TextStyle(
+                                          fontFamily: 'Inter',
+                                          fontSize: 24,
                                           fontWeight: FontWeight.w700,
                                           color: Colors.white,
                                         ),
                                       ),
-                                      const SizedBox(width: 8),
-                                      Container(
-                                        padding: const EdgeInsets.all(4),
-                                        decoration: const BoxDecoration(
-                                          color: Color(0xFF00CBA9),
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: const Icon(
-                                          Icons.check,
-                                          size: 10,
-                                          color: Colors.white,
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'CHECKUPS',
+                                        style: TextStyle(
+                                          fontFamily: 'Inter',
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.white.withAlpha(153),
+                                          letterSpacing: 1,
                                         ),
                                       ),
                                     ],
                                   ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'Pro Member',
-                                    style: TextStyle(
-                                      fontFamily: 'Inter',
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.white.withAlpha(153),
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
-                            ),
-                            Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: Colors.white.withAlpha(13),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Icon(
-                                Icons.edit_outlined,
-                                color: Colors.white.withAlpha(179),
-                                size: 20,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      
-                      const SizedBox(height: 16),
-                      
-                      // Stats Row (Only Checkups as requested)
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildGlassCard(
-                              padding: const EdgeInsets.symmetric(vertical: 24),
-                              child: Column(
-                                children: [
-                                  const Text(
-                                    '12',
-                                    style: TextStyle(
-                                      fontFamily: 'Inter',
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'CHECKUPS',
-                                    style: TextStyle(
-                                      fontFamily: 'Inter',
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white.withAlpha(153),
-                                      letterSpacing: 1,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          // Empty expanded for spacing/balance if needed, or just let the checkups card take full width?
-                          // The design shows cards side by side. Since Health Score is removed, 
-                          // checkups can either be full width or half width. 
-                          // Let's make it full width since it's the only one.
-                          // Actually, a smaller card like "12 Checkups" looks weird full width.
-                          // Let's keep it expanded and maybe add an empty space or center it? 
-                          // No, typically you'd just have the one card.
-                          // Let's stick to the previous layout structure but just one card.
-                        ],
+                            ],
+                          );
+                        },
                       ),
 
                       const SizedBox(height: 32),
                       _buildSectionHeader('DISPLAY'),
                       const SizedBox(height: 16),
 
-                      _buildGlassCard(
-                        child: Column(
-                          children: [
-                            // Language
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      Consumer<SettingsProvider>(
+                        builder: (context, settingsProvider, child) {
+                          return _buildGlassCard(
+                            child: Column(
                               children: [
-                                _buildSettingItemHeader(
-                                  Icons.translate,
-                                  const Color(0xFFFFAB40),
-                                  'Language',
-                                ),
-                                Container(
-                                  height: 36,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withAlpha(26),
-                                    borderRadius: BorderRadius.circular(18),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      _buildLanguageOption('EN', _selectedLanguage == 'EN'),
-                                      _buildLanguageOption('AM', _selectedLanguage == 'AM'), // Amharic
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            
-                            const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 16),
-                              child: Divider(color: Colors.white10, height: 1),
-                            ),
-
-                            // Text Size Dropdown
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                _buildSettingItemHeader(
-                                  Icons.text_fields,
-                                  const Color(0xFF6B9FFF),
-                                  'Text Size',
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withAlpha(13),
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                      color: Colors.white.withAlpha(26),
-                                      width: 1,
+                                // Language
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    _buildSettingItemHeader(
+                                      Icons.translate,
+                                      const Color(0xFFFFAB40),
+                                      'Language',
                                     ),
-                                  ),
-                                  child: DropdownButtonHideUnderline(
-                                    child: DropdownButton<String>(
-                                      value: _selectedTextSize,
-                                      dropdownColor: const Color(0xFF1E2432),
-                                      icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
-                                      style: const TextStyle(
-                                        fontFamily: 'Inter',
-                                        fontSize: 14,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w500,
+                                    Container(
+                                      height: 36,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withAlpha(26),
+                                        borderRadius: BorderRadius.circular(18),
                                       ),
-                                      items: _textSizes.map((String value) {
-                                        return DropdownMenuItem<String>(
-                                          value: value,
-                                          child: Text(value),
-                                        );
-                                      }).toList(),
-                                      onChanged: (newValue) {
-                                        setState(() {
-                                          _selectedTextSize = newValue!;
-                                        });
-                                      },
+                                      child: Row(
+                                        children: [
+                                          _buildLanguageOption(
+                                            'EN',
+                                            settingsProvider.language == 'EN',
+                                            () => settingsProvider.setLanguage('EN'),
+                                          ),
+                                          _buildLanguageOption(
+                                            'AM',
+                                            settingsProvider.language == 'AM',
+                                            () => settingsProvider.setLanguage('AM'),
+                                          ), // Amharic
+                                        ],
+                                      ),
                                     ),
-                                  ),
+                                  ],
+                                ),
+
+                                const Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 16),
+                                  child: Divider(color: Colors.white10, height: 1),
+                                ),
+
+                                // Text Size Dropdown
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    _buildSettingItemHeader(
+                                      Icons.text_fields,
+                                      const Color(0xFF6B9FFF),
+                                      'Text Size',
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 8,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withAlpha(13),
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(
+                                          color: Colors.white.withAlpha(26),
+                                          width: 1,
+                                        ),
+                                      ),
+                                      child: DropdownButtonHideUnderline(
+                                        child: DropdownButton<String>(
+                                          value: settingsProvider.textSize,
+                                          dropdownColor: const Color(0xFF1E2432),
+                                          icon: const Icon(
+                                            Icons.arrow_drop_down,
+                                            color: Colors.white,
+                                          ),
+                                          style: const TextStyle(
+                                            fontFamily: 'Inter',
+                                            fontSize: 14,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                          items: _textSizes.map((String value) {
+                                            return DropdownMenuItem<String>(
+                                              value: value,
+                                              child: Text(value),
+                                            );
+                                          }).toList(),
+                                          onChanged: (newValue) {
+                                            if (newValue != null) {
+                                              settingsProvider.setTextSize(newValue);
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
-                          ],
-                        ),
+                          );
+                        },
                       ),
 
                       const SizedBox(height: 32),
                       _buildSectionHeader('PREFERENCES'),
                       const SizedBox(height: 16),
 
-                      _buildGlassCard(
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      Consumer<SettingsProvider>(
+                        builder: (context, settingsProvider, child) {
+                          return _buildGlassCard(
+                            child: Column(
                               children: [
-                                _buildSettingItemHeader(
-                                  Icons.notifications_active,
-                                  const Color(0xFFFF6B6B),
-                                  'Notifications',
-                                  subtitle: 'Updates & Tips',
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    _buildSettingItemHeader(
+                                      Icons.notifications_active,
+                                      const Color(0xFFFF6B6B),
+                                      'Notifications',
+                                      subtitle: 'Updates & Tips',
+                                    ),
+                                    Switch(
+                                      value: settingsProvider.notificationsEnabled,
+                                      onChanged: (value) {
+                                        settingsProvider.setNotificationsEnabled(value);
+                                      },
+                                      activeThumbColor: const Color(0xFF00CBA9),
+                                      activeTrackColor: const Color(
+                                        0xFF00CBA9,
+                                      ).withAlpha(77),
+                                      inactiveThumbColor: Colors.white.withAlpha(
+                                        179,
+                                      ),
+                                      inactiveTrackColor: Colors.white.withAlpha(
+                                        26,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                Switch(
-                                  value: _notificationsEnabled,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _notificationsEnabled = value;
-                                    });
-                                  },
-                                  activeColor: const Color(0xFF00CBA9),
-                                  activeTrackColor: const Color(0xFF00CBA9).withAlpha(77),
-                                  inactiveThumbColor: Colors.white.withAlpha(179),
-                                  inactiveTrackColor: Colors.white.withAlpha(26),
-                                ),
-                              ],
-                            ),
-                            
-                            const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 16),
-                              child: Divider(color: Colors.white10, height: 1),
-                            ),
 
-                            // Offline Mode Toggle
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                _buildSettingItemHeader(
-                                  Icons.wifi_off_rounded,
-                                  const Color(0xFF5FFFD7), // Mint
-                                  'Offline Mode',
-                                  subtitle: 'Save data',
+                                const Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 16),
+                                  child: Divider(color: Colors.white10, height: 1),
                                 ),
-                                Switch(
-                                  value: _offlineMode,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _offlineMode = value;
-                                    });
-                                  },
-                                  activeColor: const Color(0xFF00CBA9),
-                                  activeTrackColor: const Color(0xFF00CBA9).withAlpha(77),
-                                  inactiveThumbColor: Colors.white.withAlpha(179),
-                                  inactiveTrackColor: Colors.white.withAlpha(26),
+
+                                // Offline Mode Toggle
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    _buildSettingItemHeader(
+                                      Icons.wifi_off_rounded,
+                                      const Color(0xFF5FFFD7), // Mint
+                                      'Offline Mode',
+                                      subtitle: 'Save data',
+                                    ),
+                                    Switch(
+                                      value: settingsProvider.offlineMode,
+                                      onChanged: (value) {
+                                        settingsProvider.setOfflineMode(value);
+                                      },
+                                      activeThumbColor: const Color(0xFF00CBA9),
+                                      activeTrackColor: const Color(
+                                        0xFF00CBA9,
+                                      ).withAlpha(77),
+                                      inactiveThumbColor: Colors.white.withAlpha(
+                                        179,
+                                      ),
+                                      inactiveTrackColor: Colors.white.withAlpha(
+                                        26,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
-                          ],
-                        ),
+                          );
+                        },
                       ),
 
                       const SizedBox(height: 32),
@@ -399,28 +503,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _buildGlassCard(
                         child: Column(
                           children: [
-                            _buildSupportItem(Icons.help_outline, 'Help Center'),
-                            const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 16),
-                              child: Divider(color: Colors.white10, height: 1),
+                            _buildSupportItem(
+                              Icons.help_outline,
+                              'Help Center',
+                              onTap: () => _launchUrl('https://support.google.com'),
                             ),
-                            _buildSupportItem(Icons.lock_outline, 'Privacy Policy'),
                             const Padding(
                               padding: EdgeInsets.symmetric(vertical: 16),
                               child: Divider(color: Colors.white10, height: 1),
                             ),
                             _buildSupportItem(
-                              Icons.logout, 
-                              'Log Out', 
+                              Icons.lock_outline,
+                              'Privacy Policy',
+                              onTap: () => _launchUrl('https://policies.google.com/privacy'),
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 16),
+                              child: Divider(color: Colors.white10, height: 1),
+                            ),
+                            _buildSupportItem(
+                              Icons.logout,
+                              'Log Out',
                               isDestructive: true,
                               iconColor: const Color(0xFFFF6B6B),
+                              onTap: _handleLogout,
                             ),
                           ],
                         ),
                       ),
 
                       const SizedBox(height: 40),
-                      
+
                       Center(
                         child: Text(
                           'BLACKSEED AI V0.1.0',
@@ -484,10 +597,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Colors.white.withAlpha(10),
                 ],
               ),
-              border: Border.all(
-                color: Colors.white.withAlpha(26),
-                width: 1,
-              ),
+              border: Border.all(color: Colors.white.withAlpha(26), width: 1),
             ),
             child: child,
           ),
@@ -496,13 +606,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildLanguageOption(String text, bool isSelected) {
+  Widget _buildLanguageOption(String text, bool isSelected, VoidCallback onTap) {
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedLanguage = text;
-        });
-      },
+      onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
@@ -515,14 +621,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
             fontFamily: 'Inter',
             fontSize: 12,
             fontWeight: FontWeight.w700,
-            color: isSelected ? const Color(0xFF1A1D29) : Colors.white.withAlpha(179),
+            color: isSelected
+                ? const Color(0xFF1A1D29)
+                : Colors.white.withAlpha(179),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildSettingItemHeader(IconData icon, Color iconColor, String title, {String? subtitle}) {
+  Widget _buildSettingItemHeader(
+    IconData icon,
+    Color iconColor,
+    String title, {
+    String? subtitle,
+  }) {
     return Row(
       children: [
         Container(
@@ -532,11 +645,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             color: iconColor.withAlpha(26),
             shape: BoxShape.circle,
           ),
-          child: Icon(
-            icon,
-            color: iconColor,
-            size: 22,
-          ),
+          child: Icon(icon, color: iconColor, size: 22),
         ),
         const SizedBox(width: 16),
         Column(
@@ -569,13 +678,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildSupportItem(IconData icon, String title, {bool isDestructive = false, Color? iconColor}) {
+  Widget _buildSupportItem(
+    IconData icon,
+    String title, {
+    bool isDestructive = false,
+    Color? iconColor,
+    VoidCallback? onTap,
+  }) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: () {
-          // TODO: Handle tap
-        },
+        onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
           child: Row(
@@ -593,7 +706,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     fontFamily: 'Inter',
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: isDestructive ? const Color(0xFFFF6B6B) : Colors.white,
+                    color: isDestructive
+                        ? const Color(0xFFFF6B6B)
+                        : Colors.white,
                   ),
                 ),
               ),

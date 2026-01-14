@@ -144,10 +144,7 @@ class EmergencyScreen extends StatelessWidget {
             color.withAlpha(13),
           ],
         ),
-        border: Border.all(
-          color: color.withAlpha(77),
-          width: 1,
-        ),
+        border: Border.all(color: color.withAlpha(77), width: 1),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withAlpha(51),
@@ -177,16 +174,9 @@ class EmergencyScreen extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: color.withAlpha(51),
                         shape: BoxShape.circle,
-                        border: Border.all(
-                          color: color,
-                          width: 2,
-                        ),
+                        border: Border.all(color: color, width: 2),
                       ),
-                      child: Icon(
-                        icon,
-                        color: Colors.white,
-                        size: 28,
-                      ),
+                      child: Icon(icon, color: Colors.white, size: 28),
                     ),
                     const SizedBox(width: 20),
                     Expanded(

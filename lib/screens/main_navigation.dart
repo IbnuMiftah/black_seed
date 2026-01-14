@@ -36,7 +36,7 @@ class _MainNavigationState extends State<MainNavigation> {
         children: [
           // Main Content
           _screens[_currentIndex],
-          
+
           // Floating Navigation Bar
           Positioned(
             left: 40,
@@ -74,7 +74,10 @@ class _MainNavigationState extends State<MainNavigation> {
                       ),
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [

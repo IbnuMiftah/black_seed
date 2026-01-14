@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
-import 'library_screen.dart';
 import 'emergency_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   final Function(int) onTabChange;
 
-  const HomeScreen({
-    super.key,
-    required this.onTabChange,
-  });
+  const HomeScreen({super.key, required this.onTabChange});
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +49,9 @@ class HomeScreen extends StatelessWidget {
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF00CBA9).withAlpha(60), // Reduced from 102
+                            color: const Color(
+                              0xFF00CBA9,
+                            ).withAlpha(60), // Reduced from 102
                             blurRadius: 12,
                             spreadRadius: 2,
                           ),
@@ -116,9 +114,7 @@ class HomeScreen extends StatelessWidget {
                             TextSpan(text: 'Hello, how are you\n'),
                             TextSpan(
                               text: 'feeling?',
-                              style: TextStyle(
-                                color: Color(0xFF00CBA9),
-                              ),
+                              style: TextStyle(color: Color(0xFF00CBA9)),
                             ),
                           ],
                         ),
@@ -152,7 +148,9 @@ class HomeScreen extends StatelessWidget {
                                 Container(
                                   padding: const EdgeInsets.all(10),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFF00CBA9).withAlpha(26), // Subtle Teal
+                                    color: const Color(
+                                      0xFF00CBA9,
+                                    ).withAlpha(26), // Subtle Teal
                                     shape: BoxShape.circle,
                                   ),
                                   child: const Icon(
@@ -169,7 +167,9 @@ class HomeScreen extends StatelessWidget {
                                       fontFamily: 'Inter',
                                       fontSize: 13,
                                       fontWeight: FontWeight.w400,
-                                      color: Colors.white.withAlpha(204), // Clean white text
+                                      color: Colors.white.withAlpha(
+                                        204,
+                                      ), // Clean white text
                                       height: 1.4,
                                     ),
                                   ),
@@ -179,8 +179,6 @@ class HomeScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-
-
 
                       const SizedBox(height: 40),
 
@@ -214,7 +212,9 @@ class HomeScreen extends StatelessWidget {
                               const Color(0xFFFFBD5B).withAlpha(51),
                             ],
                             iconColor: const Color(0xFFFFAB40),
-                            decorationColor: const Color(0xFFFFAB40).withAlpha(26),
+                            decorationColor: const Color(
+                              0xFFFFAB40,
+                            ).withAlpha(26),
                             onTap: () {
                               onTabChange(1); // Navigate to Chat (Index 1)
                             },
@@ -228,7 +228,9 @@ class HomeScreen extends StatelessWidget {
                               const Color(0xFF6BB1FF).withAlpha(51),
                             ],
                             iconColor: const Color(0xFF4E9FFF),
-                            decorationColor: const Color(0xFF4E9FFF).withAlpha(26),
+                            decorationColor: const Color(
+                              0xFF4E9FFF,
+                            ).withAlpha(26),
                             onTap: () {
                               onTabChange(2); // Navigate to Library (Index 2)
                             },
@@ -242,7 +244,9 @@ class HomeScreen extends StatelessWidget {
                               const Color(0xFFC29FFF).withAlpha(51),
                             ],
                             iconColor: const Color(0xFFB084FF),
-                            decorationColor: const Color(0xFFB084FF).withAlpha(26),
+                            decorationColor: const Color(
+                              0xFFB084FF,
+                            ).withAlpha(26),
                             onTap: () {
                               onTabChange(2); // Navigate to Library (Index 2)
                             },
@@ -256,7 +260,9 @@ class HomeScreen extends StatelessWidget {
                               const Color(0xFFFF8E8E).withAlpha(51),
                             ],
                             iconColor: const Color(0xFFFF6B6B),
-                            decorationColor: const Color(0xFFFF6B6B).withAlpha(26),
+                            decorationColor: const Color(
+                              0xFFFF6B6B,
+                            ).withAlpha(26),
                             onTap: () {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
@@ -269,7 +275,7 @@ class HomeScreen extends StatelessWidget {
                       ),
 
                       const SizedBox(height: 40),
-                      
+
                       // Spacing for Bottom Navigation Bar
                       const SizedBox(height: 110),
                     ],
@@ -300,13 +306,12 @@ class HomeScreen extends StatelessWidget {
           end: Alignment.bottomRight,
           colors: gradientColors,
         ),
-        border: Border.all(
-          color: iconColor.withAlpha(77),
-          width: 1,
-        ),
+        border: Border.all(color: iconColor.withAlpha(77), width: 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(60), // Changed from colored glow to subtle black shadow
+            color: Colors.black.withAlpha(
+              60,
+            ), // Changed from colored glow to subtle black shadow
             blurRadius: 16,
             offset: const Offset(0, 8),
           ),
@@ -349,11 +354,7 @@ class HomeScreen extends StatelessWidget {
                             color: iconColor.withAlpha(51),
                             borderRadius: BorderRadius.circular(16),
                           ),
-                          child: Icon(
-                            icon,
-                            color: iconColor,
-                            size: 28,
-                          ),
+                          child: Icon(icon, color: iconColor, size: 28),
                         ),
                         const Spacer(),
                         Text(

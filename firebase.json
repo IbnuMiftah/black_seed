@@ -1,0 +1,1 @@
+{"flutter":{"platforms":{"android":{"default":{"projectId":"black-seed-app","appId":"1:479702107786:android:5aa465078fe33d3a09cf73","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"black-seed-app","configurations":{"android":"1:479702107786:android:5aa465078fe33d3a09cf73","ios":"1:479702107786:ios:2c87bfde34db7ca209cf73"}}}}}}
