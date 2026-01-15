@@ -45,7 +45,7 @@ dependencies:
   supabase_flutter: ^2.6.0
 
   # AI
-  google_generative_ai: ^0.4.0
+  google_generative_ai: ^0.4.7
 
   # State Management (To handle data flow)
   provider: ^6.1.2

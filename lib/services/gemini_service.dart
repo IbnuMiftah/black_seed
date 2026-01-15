@@ -1,7 +1,7 @@
 import 'package:google_generative_ai/google_generative_ai.dart';
 
 class GeminiService {
-  static const String _apiKey = 'AIzaSyCxIiEKpboBfJGs3KuHH4IVpPzR1nHPy_I';
+  static const String _apiKey = 'AIzaSyAE2fl_dq_TZs_64fHavmf-5wYawFslDgE';
   
   late final GenerativeModel _model;
   ChatSession? _chat;
@@ -33,7 +33,7 @@ Keep responses concise but helpful. Use simple language that's easy to understan
 
   void _initModel() {
     _model = GenerativeModel(
-      model: 'gemini-pro',
+      model: 'gemini-2.0-flash',
       apiKey: _apiKey,
       systemInstruction: Content.text(_systemPrompt),
       generationConfig: GenerationConfig(
@@ -48,25 +48,43 @@ Keep responses concise but helpful. Use simple language that's easy to understan
 
   // Send a message and get a response
   Future<String> sendMessage(String message) async {
-    try {
-      // Ensure chat is initialized
-      _chat ??= _model.startChat();
-      
-      print('Sending message to Gemini: $message');
-      final response = await _chat!.sendMessage(Content.text(message));
-      print('Received response from Gemini');
-      
-      final text = response.text;
-      if (text == null || text.isEmpty) {
-        return 'I apologize, but I could not generate a response. Please try again.';
+    int maxRetries = 3;
+    int retryDelay = 2; // seconds
+
+    for (int i = 0; i < maxRetries; i++) {
+      try {
+        // Ensure chat is initialized
+        _chat ??= _model.startChat();
+        
+        print('Sending message to Gemini: $message (Attempt ${i + 1})');
+        final response = await _chat!.sendMessage(Content.text(message));
+        print('Received response from Gemini');
+        
+        final text = response.text;
+        if (text == null || text.isEmpty) {
+          return 'I apologize, but I could not generate a response. Please try again.';
+        }
+        return text;
+      } catch (e, stackTrace) {
+        print('Gemini API Error (Attempt ${i + 1}): $e');
+        
+        // Check for quota/rate limit errors
+        if (e.toString().contains('Quota exceeded') || e.toString().contains('429')) {
+             if (i < maxRetries - 1) {
+                print('Rate limit hit. Retrying in $retryDelay seconds...');
+                await Future.delayed(Duration(seconds: retryDelay));
+                retryDelay *= 2; // Exponential backoff
+                continue;
+             }
+        }
+
+        print('Stack trace: $stackTrace');
+        if (i == maxRetries - 1) {
+             return 'I\'m currently overloaded with requests. Please wait a moment and try again. (Quota Exceeded)';
+        }
       }
-      return text;
-    } catch (e, stackTrace) {
-      print('Gemini API Error: $e');
-      print('Stack trace: $stackTrace');
-      // Return a friendly error message instead of throwing
-      return 'I\'m having trouble connecting right now. Please check your internet connection and try again. Error: ${e.toString().substring(0, e.toString().length > 100 ? 100 : e.toString().length)}';
     }
+    return 'An unexpected error occurred. Please try again.';
   }
 
   // Start a new chat session (clears history)
