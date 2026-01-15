@@ -63,6 +63,10 @@ class BlackSeedApp extends StatelessWidget {
           brightness: Brightness.dark,
           scaffoldBackgroundColor: const Color(0xFF1A1D29), // Deep Charcoal
           primaryColor: const Color(0xFF00CBA9), // Calm Teal
+          // Remove glow/ripple effect on scroll and tap (except where explicitly wanted)
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          splashFactory: NoSplash.splashFactory,
           colorScheme: const ColorScheme.dark(
             primary: Color(0xFF00CBA9), // Calm Teal
             secondary: Color(0xFF5FFFD7), // Mint
