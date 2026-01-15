@@ -1,12 +1,13 @@
-import 'package:google_generative_ai/google_generative_ai.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class GeminiService {
-  // API key is loaded securely from .env file (not committed to version control)
-  static String get _apiKey => dotenv.env['GEMINI_API_KEY'] ?? '';
+  // API key is loaded securely from .env file
+  static String get _apiKey => dotenv.env['GROQ_API_KEY'] ?? '';
   
-  late final GenerativeModel _model;
-  ChatSession? _chat;
+  // Conversation history for multi-turn chat
+  final List<Map<String, dynamic>> _messages = [];
   
   // Health-focused system prompt
   static const String _systemPrompt = '''
@@ -30,78 +31,120 @@ Keep responses concise but helpful. Use simple language that's easy to understan
 ''';
 
   GeminiService() {
-    _initModel();
-  }
-
-  void _initModel() {
     final key = _apiKey;
-    print('Gemini API Key loaded: ${key.isEmpty ? "EMPTY!" : "***${key.substring(key.length > 8 ? key.length - 8 : 0)}"}');
+    print('Groq API Key loaded: ${key.isEmpty ? "EMPTY!" : "***${key.substring(key.length > 8 ? key.length - 8 : 0)}"}');
     
     if (key.isEmpty) {
-      print('WARNING: No API key found! Make sure .env file contains GEMINI_API_KEY');
+      print('WARNING: No API key found! Make sure .env file contains GROQ_API_KEY');
     }
-    
-    // Using gemini-2.0-flash
-    _model = GenerativeModel(
-      model: 'gemini-2.0-flash',
-      apiKey: key,
-      systemInstruction: Content.text(_systemPrompt),
-      generationConfig: GenerationConfig(
-        temperature: 0.7,
-        topK: 40,
-        topP: 0.95,
-        maxOutputTokens: 1024,
-      ),
-    );
-    _chat = _model.startChat();
   }
 
-  // Send a message and get a response
+  // Send a message and get a response using Groq API
   Future<String> sendMessage(String message) async {
+    final apiKey = _apiKey;
+    
+    if (apiKey.isEmpty) {
+      return 'API key not configured. Please check your .env file for GROQ_API_KEY.';
+    }
+    
+    // Groq API endpoint (OpenAI-compatible)
+    final url = Uri.parse('https://api.groq.com/openai/v1/chat/completions');
+    
+    // Add user message to history
+    _messages.add({
+      "role": "user",
+      "content": message
+    });
+    
+    // Build messages array with system prompt
+    final allMessages = [
+      {"role": "system", "content": _systemPrompt},
+      ..._messages
+    ];
+    
+    // Prepare request body
+    final requestBody = {
+      "model": "llama-3.3-70b-versatile",  // Fast and capable model
+      "messages": allMessages,
+      "temperature": 0.7,
+      "max_tokens": 1024,
+    };
+    
     int maxRetries = 3;
-    int retryDelay = 2; // seconds
-
+    int retryDelay = 2;
+    
     for (int i = 0; i < maxRetries; i++) {
       try {
-        // Ensure chat is initialized
-        _chat ??= _model.startChat();
+        print('Sending message to Groq: $message (Attempt ${i + 1})');
         
-        print('Sending message to Gemini: $message (Attempt ${i + 1})');
-        final response = await _chat!.sendMessage(Content.text(message));
-        print('Received response from Gemini');
+        final response = await http.post(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $apiKey',
+          },
+          body: jsonEncode(requestBody),
+        );
         
-        final text = response.text;
-        if (text == null || text.isEmpty) {
-          return 'I apologize, but I could not generate a response. Please try again.';
+        print('Response status: ${response.statusCode}');
+        
+        if (response.statusCode == 200) {
+          final data = jsonDecode(response.body);
+          
+          // Extract the response text
+          if (data['choices'] != null &&
+              data['choices'].isNotEmpty &&
+              data['choices'][0]['message'] != null &&
+              data['choices'][0]['message']['content'] != null) {
+            
+            final responseText = data['choices'][0]['message']['content'];
+            
+            // Add assistant response to history
+            _messages.add({
+              "role": "assistant",
+              "content": responseText
+            });
+            
+            return responseText;
+          } else {
+            return "Sorry, I couldn't get a clear response.";
+          }
+        } else {
+          print('Error response: ${response.body}');
+          
+          // Check for rate limit errors
+          if (response.statusCode == 429) {
+            if (i < maxRetries - 1) {
+              print('Rate limit hit. Retrying in $retryDelay seconds...');
+              await Future.delayed(Duration(seconds: retryDelay));
+              retryDelay *= 2;
+              _messages.removeLast(); // Remove failed message
+              continue;
+            }
+            return 'API rate limit exceeded. Please wait a moment and try again.';
+          }
+          
+          return 'Error: ${response.statusCode} - Could not get response from AI.';
         }
-        return text;
       } catch (e, stackTrace) {
-        print('Gemini API Error (Attempt ${i + 1}): $e');
-        
-        // Check for quota/rate limit errors
-        if (e.toString().contains('Quota exceeded') || e.toString().contains('429')) {
-             if (i < maxRetries - 1) {
-                print('Rate limit hit. Retrying in $retryDelay seconds...');
-                await Future.delayed(Duration(seconds: retryDelay));
-                retryDelay *= 2; // Exponential backoff
-                continue;
-             }
-        }
-
+        print('Groq API Error (Attempt ${i + 1}): $e');
         print('Stack trace: $stackTrace');
-        if (i == maxRetries - 1) {
-             return 'I\'m currently overloaded with requests. Please wait a moment and try again. (Quota Exceeded)';
+        
+        if (i < maxRetries - 1) {
+          await Future.delayed(Duration(seconds: retryDelay));
+          retryDelay *= 2;
+          continue;
         }
+        
+        return 'Connection error. Please check your internet and try again.';
       }
     }
+    
     return 'An unexpected error occurred. Please try again.';
   }
 
   // Start a new chat session (clears history)
   void startNewChat() {
-    _chat = _model.startChat();
+    _messages.clear();
   }
-
-  // Get chat history
-  List<Content> get history => _chat?.history.toList() ?? [];
 }
