@@ -1,7 +1,9 @@
 import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class GeminiService {
-  static const String _apiKey = 'AIzaSyAE2fl_dq_TZs_64fHavmf-5wYawFslDgE';
+  // API key is loaded securely from .env file (not committed to version control)
+  static String get _apiKey => dotenv.env['GEMINI_API_KEY'] ?? '';
   
   late final GenerativeModel _model;
   ChatSession? _chat;
@@ -32,9 +34,17 @@ Keep responses concise but helpful. Use simple language that's easy to understan
   }
 
   void _initModel() {
+    final key = _apiKey;
+    print('Gemini API Key loaded: ${key.isEmpty ? "EMPTY!" : "***${key.substring(key.length > 8 ? key.length - 8 : 0)}"}');
+    
+    if (key.isEmpty) {
+      print('WARNING: No API key found! Make sure .env file contains GEMINI_API_KEY');
+    }
+    
+    // Using gemini-2.0-flash
     _model = GenerativeModel(
       model: 'gemini-2.0-flash',
-      apiKey: _apiKey,
+      apiKey: key,
       systemInstruction: Content.text(_systemPrompt),
       generationConfig: GenerationConfig(
         temperature: 0.7,
