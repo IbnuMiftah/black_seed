@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import 'package:provider/provider.dart';
 import 'emergency_screen.dart';
+import '../providers/settings_provider.dart';
 
 class HomeScreen extends StatelessWidget {
   final Function(int) onTabChange;
@@ -9,6 +11,9 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final settingsProvider = Provider.of<SettingsProvider>(context);
+    final textScale = _getTextScale(settingsProvider.textSize);
+
     return Scaffold(
       backgroundColor: const Color(0xFF1A1D29), // Deep Charcoal
       body: Container(
@@ -66,11 +71,11 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    const Text(
+                    Text(
                       'BlackSeed',
                       style: TextStyle(
                         fontFamily: 'Inter',
-                        fontSize: 24,
+                        fontSize: 24 * textScale,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
                         letterSpacing: -0.5,
@@ -93,7 +98,7 @@ class HomeScreen extends StatelessWidget {
                         'Good Evening',
                         style: TextStyle(
                           fontFamily: 'Inter',
-                          fontSize: 16,
+                          fontSize: 16 * textScale,
                           fontWeight: FontWeight.w400,
                           color: Colors.white.withAlpha(179),
                         ),
@@ -102,10 +107,10 @@ class HomeScreen extends StatelessWidget {
 
                       // Main Heading
                       RichText(
-                        text: const TextSpan(
+                        text: TextSpan(
                           style: TextStyle(
                             fontFamily: 'Inter',
-                            fontSize: 36,
+                            fontSize: 36 * textScale,
                             fontWeight: FontWeight.w700,
                             color: Colors.white,
                             height: 1.2,
@@ -160,12 +165,12 @@ class HomeScreen extends StatelessWidget {
                                   ),
                                 ),
                                 const SizedBox(width: 12),
-                                Expanded(
+                              Expanded(
                                   child: Text(
                                     'This app does not provide medical advice. Always consult a healthcare professional for serious symptoms.',
                                     style: TextStyle(
                                       fontFamily: 'Inter',
-                                      fontSize: 13,
+                                      fontSize: 13 * textScale,
                                       fontWeight: FontWeight.w400,
                                       color: Colors.white.withAlpha(
                                         204,
@@ -183,11 +188,11 @@ class HomeScreen extends StatelessWidget {
                       const SizedBox(height: 40),
 
                       // Quick Actions Header
-                      const Text(
+                      Text(
                         'Quick Actions',
                         style: TextStyle(
                           fontFamily: 'Inter',
-                          fontSize: 22,
+                          fontSize: 22 * textScale,
                           fontWeight: FontWeight.w700,
                           color: Colors.white,
                         ),
@@ -218,6 +223,7 @@ class HomeScreen extends StatelessWidget {
                             onTap: () {
                               onTabChange(1); // Navigate to Chat (Index 1)
                             },
+                            textScale: textScale,
                           ),
                           _buildQuickActionCard(
                             icon: Icons.library_books_outlined,
@@ -234,6 +240,7 @@ class HomeScreen extends StatelessWidget {
                             onTap: () {
                               onTabChange(2); // Navigate to Library (Index 2)
                             },
+                            textScale: textScale,
                           ),
                           _buildQuickActionCard(
                             icon: Icons.bookmark_outline,
@@ -250,6 +257,7 @@ class HomeScreen extends StatelessWidget {
                             onTap: () {
                               onTabChange(2); // Navigate to Library (Index 2)
                             },
+                            textScale: textScale,
                           ),
                           _buildQuickActionCard(
                             icon: Icons.emergency,
@@ -270,6 +278,7 @@ class HomeScreen extends StatelessWidget {
                                 ),
                               );
                             },
+                            textScale: textScale,
                           ),
                         ],
                       ),
@@ -297,6 +306,7 @@ class HomeScreen extends StatelessWidget {
     required Color iconColor,
     required Color decorationColor,
     VoidCallback? onTap,
+    required double textScale,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -359,9 +369,9 @@ class HomeScreen extends StatelessWidget {
                         const Spacer(),
                         Text(
                           title,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: 'Inter',
-                            fontSize: 18,
+                            fontSize: 18 * textScale,
                             fontWeight: FontWeight.w700,
                             color: Colors.white,
                             height: 1.2,
@@ -372,7 +382,7 @@ class HomeScreen extends StatelessWidget {
                           subtitle,
                           style: TextStyle(
                             fontFamily: 'Inter',
-                            fontSize: 13,
+                            fontSize: 13 * textScale,
                             fontWeight: FontWeight.w400,
                             color: Colors.white.withAlpha(179),
                           ),
@@ -387,5 +397,17 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  double _getTextScale(String textSize) {
+    switch (textSize) {
+      case 'Small':
+        return 0.85;
+      case 'Large':
+        return 1.15;
+      case 'Medium':
+      default:
+        return 1.0;
+    }
   }
 }

@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
+import '../providers/auth_provider.dart';
+import '../providers/settings_provider.dart';
+import '../services/database_service.dart';
 
 class LibraryScreen extends StatefulWidget {
-  const LibraryScreen({super.key});
+  final Function(int)? onTabChange;
+
+  const LibraryScreen({super.key, this.onTabChange});
 
   @override
   State<LibraryScreen> createState() => _LibraryScreenState();
@@ -11,9 +18,133 @@ class LibraryScreen extends StatefulWidget {
 class _LibraryScreenState extends State<LibraryScreen> {
   int _selectedTabIndex = 0;
   final List<String> _tabs = ['All Topics', 'Symptoms', 'First Aid'];
+  final DatabaseService _databaseService = DatabaseService();
+  List<Map<String, dynamic>> _chatHistory = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadChatHistory();
+  }
+
+  Future<void> _loadChatHistory() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final userId = authProvider.user?.uid;
+    
+    if (userId != null) {
+      final history = await _databaseService.loadChatHistory(userId);
+      if (mounted) {
+        setState(() {
+          _chatHistory = history;
+          _isLoading = false;
+        });
+      }
+    } else {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  // Group chat history into sessions (conversations separated by time gaps)
+  List<Map<String, dynamic>> _getSessionSummaries() {
+    if (_chatHistory.isEmpty) return [];
+    
+    List<Map<String, dynamic>> sessions = [];
+    List<Map<String, dynamic>> currentSession = [];
+    DateTime? lastMessageTime;
+    
+    for (var message in _chatHistory) {
+      // Check for explicit session delimiter
+      if (message['message'] == '[__SESSION_BREAK__]') {
+        if (currentSession.isNotEmpty) {
+          sessions.add(_createSessionSummary(currentSession));
+          currentSession = [];
+        }
+        lastMessageTime = null;
+        continue;
+      }
+
+      final timestamp = DateTime.tryParse(message['timestamp'] ?? '');
+      if (timestamp == null) continue;
+      
+      // If more than 1 hour gap, start a new session
+      if (lastMessageTime != null && 
+          timestamp.difference(lastMessageTime).inHours > 1) {
+        if (currentSession.isNotEmpty) {
+          sessions.add(_createSessionSummary(currentSession));
+        }
+        currentSession = [];
+      }
+      
+      currentSession.add(message);
+      lastMessageTime = timestamp;
+    }
+    
+    // Add the last session
+    if (currentSession.isNotEmpty) {
+      sessions.add(_createSessionSummary(currentSession));
+    }
+    
+    // Return most recent sessions first
+    return sessions.reversed.take(10).toList();
+  }
+
+  Map<String, dynamic> _createSessionSummary(List<Map<String, dynamic>> messages) {
+    // Get first user message as the title
+    String title = 'Chat Session';
+    String preview = '';
+    DateTime? timestamp;
+    
+    for (var msg in messages) {
+      if (msg['is_user_message'] == true && title == 'Chat Session') {
+        final userMsg = msg['message'] as String? ?? '';
+        title = userMsg.length > 30 ? '${userMsg.substring(0, 30)}...' : userMsg;
+      }
+      if (msg['is_user_message'] == false && preview.isEmpty) {
+        final aiMsg = msg['message'] as String? ?? '';
+        preview = aiMsg.length > 60 ? '${aiMsg.substring(0, 60)}...' : aiMsg;
+      }
+      if (msg['timestamp'] != null) {
+        timestamp = DateTime.tryParse(msg['timestamp']);
+      }
+    }
+    
+    return {
+      'title': title,
+      'preview': preview,
+      'timestamp': timestamp,
+      'messageCount': messages.length,
+    };
+  }
+
+  String _formatTimestamp(DateTime? timestamp) {
+    if (timestamp == null) return '';
+    
+    final now = DateTime.now();
+    final difference = now.difference(timestamp);
+    
+    if (difference.inDays == 0) {
+      return 'Today';
+    } else if (difference.inDays == 1) {
+      return 'Yesterday';
+    } else if (difference.inDays < 7) {
+      return '${difference.inDays} days ago';
+    } else if (difference.inDays < 30) {
+      return '${(difference.inDays / 7).floor()} week${difference.inDays >= 14 ? 's' : ''} ago';
+    } else {
+      return DateFormat('MMM d, yyyy').format(timestamp);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final settingsProvider = Provider.of<SettingsProvider>(context);
+    final textScale = _getTextScale(settingsProvider.textSize);
+    
     return Scaffold(
       backgroundColor: const Color(0xFF1A1D29),
       body: Container(
@@ -72,11 +203,11 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Library',
                           style: TextStyle(
                             fontFamily: 'Inter',
-                            fontSize: 24,
+                            fontSize: 24 * textScale,
                             fontWeight: FontWeight.w700,
                             color: Colors.white,
                             letterSpacing: -0.5,
@@ -86,7 +217,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                           'BlackSeed AI',
                           style: TextStyle(
                             fontFamily: 'Inter',
-                            fontSize: 13,
+                            fontSize: 13 * textScale,
                             fontWeight: FontWeight.w400,
                             color: const Color(0xFF00CBA9).withAlpha(204),
                           ),
@@ -132,16 +263,16 @@ class _LibraryScreenState extends State<LibraryScreen> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: TextField(
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontFamily: 'Inter',
-                                fontSize: 15,
+                                fontSize: 15 * textScale,
                                 color: Colors.white,
                               ),
                               decoration: InputDecoration(
                                 hintText: 'Search conditions, symptoms...',
                                 hintStyle: TextStyle(
                                   fontFamily: 'Inter',
-                                  fontSize: 15,
+                                  fontSize: 15 * textScale,
                                   color: Colors.white.withAlpha(128),
                                 ),
                                 border: InputBorder.none,
@@ -177,6 +308,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                             _selectedTabIndex = index;
                           });
                         },
+                        textScale,
                       ),
                     ),
                   ),
@@ -193,11 +325,11 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Popular Articles Section
-                      const Text(
+                      Text(
                         'Popular Articles',
                         style: TextStyle(
                           fontFamily: 'Inter',
-                          fontSize: 20,
+                          fontSize: 20 * textScale,
                           fontWeight: FontWeight.w700,
                           color: Colors.white,
                         ),
@@ -217,6 +349,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                               description:
                                   'Discomfort in your upper abdomen. Guides on triggers, relief postures, and safe OTC...',
                               isOffline: true,
+                              textScale: textScale,
                             ),
                             const SizedBox(width: 16),
                             _buildArticleCard(
@@ -225,6 +358,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                               description:
                                   'Identification of tension, migraine, or cluster headaches with pressure point relief...',
                               isOffline: true,
+                              textScale: textScale,
                             ),
                             const SizedBox(width: 16),
                             _buildArticleCard(
@@ -233,6 +367,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                               description:
                                   'Step-by-step cleaning and dressing instructions to prevent infection for minor...',
                               isOffline: true,
+                              textScale: textScale,
                             ),
                           ],
                         ),
@@ -240,12 +375,12 @@ class _LibraryScreenState extends State<LibraryScreen> {
 
                       const SizedBox(height: 32),
 
-                      // Saved Sessions Section
-                      const Text(
+                      // Saved Sessions Section - Now with actual data
+                      Text(
                         'Saved Sessions',
                         style: TextStyle(
                           fontFamily: 'Inter',
-                          fontSize: 20,
+                          fontSize: 20 * textScale,
                           fontWeight: FontWeight.w700,
                           color: Colors.white,
                         ),
@@ -253,24 +388,80 @@ class _LibraryScreenState extends State<LibraryScreen> {
 
                       const SizedBox(height: 16),
 
-                      _buildSavedSessionCard(
-                        'Indigestion',
-                        'Reviewed 2 days ago',
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      _buildSavedSessionCard(
-                        'Headaches',
-                        'Reviewed 5 days ago',
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      _buildSavedSessionCard(
-                        'Cut & Scrapes',
-                        'Reviewed 1 week ago',
-                      ),
+                      if (_isLoading)
+                        Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: CircularProgressIndicator(
+                              color: const Color(0xFF00CBA9),
+                            ),
+                          ),
+                        )
+                      else if (_getSessionSummaries().isEmpty)
+                        Container(
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [Colors.white.withAlpha(20), Colors.white.withAlpha(10)],
+                            ),
+                            border: Border.all(color: Colors.white.withAlpha(26), width: 1),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.chat_bubble_outline,
+                                color: Colors.white.withAlpha(128),
+                                size: 32,
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'No chat history yet',
+                                      style: TextStyle(
+                                        fontFamily: 'Inter',
+                                        fontSize: 16 * textScale,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'Start a conversation to see your saved sessions here',
+                                      style: TextStyle(
+                                        fontFamily: 'Inter',
+                                        fontSize: 13 * textScale,
+                                        color: Colors.white.withAlpha(128),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      else
+                        ...(_getSessionSummaries().map((session) => Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: _buildSavedSessionCard(
+                            session['title'] ?? 'Chat Session',
+                            _formatTimestamp(session['timestamp']),
+                            session['preview'] ?? '',
+                            session['messageCount'] ?? 0,
+                            textScale,
+                            () {
+                              // Navigate to Chat tab (index 1)
+                              if (widget.onTabChange != null) {
+                                widget.onTabChange!(1);
+                              }
+                            },
+                          ),
+                        ))),
 
                       const SizedBox(height: 40),
 
@@ -287,7 +478,19 @@ class _LibraryScreenState extends State<LibraryScreen> {
     );
   }
 
-  Widget _buildCategoryTab(String label, bool isSelected, VoidCallback onTap) {
+  double _getTextScale(String textSize) {
+    switch (textSize) {
+      case 'Small':
+        return 0.85;
+      case 'Large':
+        return 1.15;
+      case 'Medium':
+      default:
+        return 1.0;
+    }
+  }
+
+  Widget _buildCategoryTab(String label, bool isSelected, VoidCallback onTap, double textScale) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -315,7 +518,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
           label,
           style: TextStyle(
             fontFamily: 'Inter',
-            fontSize: 14,
+            fontSize: 14 * textScale,
             fontWeight: FontWeight.w600,
             color: isSelected
                 ? const Color(0xFF1A1D29)
@@ -331,6 +534,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
     required String subtitle,
     required String description,
     required bool isOffline,
+    required double textScale,
   }) {
     return Container(
       width: 320,
@@ -369,9 +573,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
                         children: [
                           Text(
                             title,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontFamily: 'Inter',
-                              fontSize: 18,
+                              fontSize: 18 * textScale,
                               fontWeight: FontWeight.w700,
                               color: Colors.white,
                             ),
@@ -381,7 +585,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                             subtitle,
                             style: TextStyle(
                               fontFamily: 'Inter',
-                              fontSize: 13,
+                              fontSize: 13 * textScale,
                               fontWeight: FontWeight.w400,
                               color: const Color(0xFF00CBA9).withAlpha(179),
                             ),
@@ -401,7 +605,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                   description,
                   style: TextStyle(
                     fontFamily: 'Inter',
-                    fontSize: 14,
+                    fontSize: 14 * textScale,
                     fontWeight: FontWeight.w400,
                     color: Colors.white.withAlpha(179),
                     height: 1.5,
@@ -423,7 +627,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                         'AVAILABLE OFFLINE',
                         style: TextStyle(
                           fontFamily: 'Inter',
-                          fontSize: 11,
+                          fontSize: 11 * textScale,
                           fontWeight: FontWeight.w600,
                           color: const Color(0xFF00CBA9).withAlpha(179),
                           letterSpacing: 0.5,
@@ -440,8 +644,10 @@ class _LibraryScreenState extends State<LibraryScreen> {
     );
   }
 
-  Widget _buildSavedSessionCard(String title, String timestamp) {
-    return Container(
+  Widget _buildSavedSessionCard(String title, String timestamp, String preview, int messageCount, double textScale, VoidCallback? onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
@@ -458,44 +664,87 @@ class _LibraryScreenState extends State<LibraryScreen> {
           filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            title,
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 16 * textScale,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 2),
+                          Row(
+                            children: [
+                              Text(
+                                timestamp,
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontSize: 12 * textScale,
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.white.withAlpha(128),
+                                ),
+                              ),
+                              if (messageCount > 0) ...[
+                                Text(
+                                  ' • ',
+                                  style: TextStyle(
+                                    color: Colors.white.withAlpha(128),
+                                  ),
+                                ),
+                                Text(
+                                  '$messageCount messages',
+                                  style: TextStyle(
+                                    fontFamily: 'Inter',
+                                    fontSize: 12 * textScale,
+                                    fontWeight: FontWeight.w400,
+                                    color: const Color(0xFF00CBA9).withAlpha(179),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        timestamp,
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 12,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.white.withAlpha(128),
-                        ),
-                      ),
-                    ],
+                    ),
+                    Icon(
+                      Icons.chevron_right,
+                      color: Colors.white.withAlpha(102),
+                      size: 20,
+                    ),
+                  ],
+                ),
+                if (preview.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    preview,
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 13 * textScale,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.white.withAlpha(128),
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                Icon(
-                  Icons.chevron_right,
-                  color: Colors.white.withAlpha(102),
-                  size: 20,
-                ),
+                ],
               ],
             ),
           ),
         ),
       ),
-    );
+    ),
+  );
   }
 }

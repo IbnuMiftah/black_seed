@@ -64,9 +64,11 @@ class DatabaseService {
           .from('chat_history')
           .select()
           .eq('user_id', odUserId)
-          .order('timestamp', ascending: true)
+          .order('timestamp', ascending: false)
           .limit(100); // Limit to last 100 messages
-      return List<Map<String, dynamic>>.from(response);
+      
+      final List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(response);
+      return data.reversed.toList();
     } catch (e) {
       print('Load chat history error: $e');
       return [];

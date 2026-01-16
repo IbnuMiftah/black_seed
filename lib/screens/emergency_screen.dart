@@ -106,6 +106,7 @@ class EmergencyScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     _buildEmergencyCard(
+                      context: context,
                       name: 'Red Crescent Ambulance',
                       number: '907',
                       color: const Color(0xFFFF6B6B),
@@ -113,6 +114,7 @@ class EmergencyScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
                     _buildEmergencyCard(
+                      context: context,
                       name: 'Tebita Ambulance',
                       number: '8035',
                       color: const Color(0xFFFFAB40),
@@ -128,7 +130,26 @@ class EmergencyScreen extends StatelessWidget {
     );
   }
 
+  Future<void> _makePhoneCall(String number, BuildContext context) async {
+    final Uri phoneUri = Uri(scheme: 'tel', path: number);
+    if (await canLaunchUrl(phoneUri)) {
+      await launchUrl(phoneUri);
+    } else {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Could not dial $number'),
+            backgroundColor: const Color(0xFFFF6B6B),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
+      }
+    }
+  }
+
   Widget _buildEmergencyCard({
+    required BuildContext context,
     required String name,
     required String number,
     required Color color,
@@ -161,9 +182,7 @@ class EmergencyScreen extends StatelessWidget {
           child: Material(
             color: Colors.transparent,
             child: InkWell(
-              onTap: () {
-                // TODO: Implement call functionality
-              },
+              onTap: () => _makePhoneCall(number, context),
               borderRadius: BorderRadius.circular(24),
               child: Padding(
                 padding: const EdgeInsets.all(24),

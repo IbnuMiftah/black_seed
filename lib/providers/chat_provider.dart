@@ -70,6 +70,8 @@ class ChatProvider extends ChangeNotifier {
       if (history.isNotEmpty) {
         _messages.clear();
         for (final item in history) {
+          // Skip session delimiters
+          if (item['message'] == '[__SESSION_BREAK__]') continue;
           _messages.add(ChatMessage.fromMap(item));
         }
         // Add welcome message if no messages
@@ -156,9 +158,16 @@ class ChatProvider extends ChangeNotifier {
 
   // Start a new conversation
   Future<void> startNewConversation() async {
-    // Clear from database if user is logged in
+    // Insert a logical session break in the database to delimit sessions
     if (_currentUserId != null) {
-      await _databaseService.clearChatHistory(_currentUserId!);
+      // Fire and forget
+      _databaseService.saveChatMessage(
+        odUserId: _currentUserId!,
+        message: '[__SESSION_BREAK__]',
+        isUserMessage: false,
+      ).catchError((e) {
+        print('Error saving session break: $e');
+      });
     }
     
     _messages.clear();

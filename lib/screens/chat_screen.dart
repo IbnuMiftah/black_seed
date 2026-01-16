@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:provider/provider.dart';
 import '../providers/chat_provider.dart';
 import '../providers/auth_provider.dart';
+import '../providers/settings_provider.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -343,8 +344,11 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildMessageBubble(ChatMessage message) {
+    final settingsProvider = Provider.of<SettingsProvider>(context);
+    final textScale = _getTextScale(settingsProvider.textSize);
+
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.only(bottom: 24),
       child: Column(
         crossAxisAlignment: message.isUser
             ? CrossAxisAlignment.end
@@ -421,9 +425,9 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   child: Text(
                     message.text,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: 'Inter',
-                      fontSize: 15,
+                      fontSize: 15 * textScale,
                       fontWeight: FontWeight.w400,
                       color: Colors.white,
                       height: 1.4,
@@ -441,7 +445,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 _formatTimestamp(message.timestamp),
                 style: TextStyle(
                   fontFamily: 'Inter',
-                  fontSize: 12,
+                  fontSize: 12 * textScale,
                   fontWeight: FontWeight.w400,
                   color: Colors.white.withAlpha(102),
                 ),
@@ -451,6 +455,18 @@ class _ChatScreenState extends State<ChatScreen> {
         ],
       ),
     );
+  }
+
+  double _getTextScale(String textSize) {
+    switch (textSize) {
+      case 'Small':
+        return 0.85;
+      case 'Large':
+        return 1.15;
+      case 'Medium':
+      default:
+        return 1.0;
+    }
   }
 
   String _formatTimestamp(DateTime timestamp) {

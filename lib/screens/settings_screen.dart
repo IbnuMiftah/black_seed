@@ -16,6 +16,17 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   final List<String> _textSizes = ['Small', 'Medium', 'Large'];
 
+  @override
+  void initState() {
+    super.initState();
+    // Refresh checkup count when entering settings to ensure consistency with DB
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        Provider.of<AuthProvider>(context, listen: false).refreshCheckupCount();
+      }
+    });
+  }
+
   Future<void> _handleLogout() async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -87,6 +98,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final settingsProvider = Provider.of<SettingsProvider>(context);
+    final textScale = _getTextScale(settingsProvider.textSize);
+
     return Scaffold(
       backgroundColor: const Color(0xFF1A1D29),
       body: Container(
@@ -144,11 +158,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Settings',
                           style: TextStyle(
                             fontFamily: 'Inter',
-                            fontSize: 24,
+                            fontSize: 24 * textScale,
                             fontWeight: FontWeight.w700,
                             color: Colors.white,
                             letterSpacing: -0.5,
@@ -158,7 +172,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           'BlackSeed AI',
                           style: TextStyle(
                             fontFamily: 'Inter',
-                            fontSize: 13,
+                            fontSize: 13 * textScale,
                             fontWeight: FontWeight.w400,
                             color: const Color(0xFF00CBA9).withAlpha(204),
                           ),
@@ -181,7 +195,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildSectionHeader('ACCOUNT'),
+                      _buildSectionHeader('ACCOUNT', textScale),
                       const SizedBox(height: 16),
 
                       // Profile Card
@@ -230,9 +244,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           Flexible(
                                             child: Text(
                                               user?.displayName ?? user?.email?.split('@')[0] ?? 'User',
-                                              style: const TextStyle(
+                                              style: TextStyle(
                                                 fontFamily: 'Inter',
-                                                fontSize: 18,
+                                                fontSize: 18 * textScale,
                                                 fontWeight: FontWeight.w700,
                                                 color: Colors.white,
                                               ),
@@ -259,7 +273,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         user?.email ?? 'No email',
                                         style: TextStyle(
                                           fontFamily: 'Inter',
-                                          fontSize: 14,
+                                          fontSize: 14 * textScale,
                                           fontWeight: FontWeight.w500,
                                           color: Colors.white.withAlpha(153),
                                         ),
@@ -288,9 +302,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     children: [
                                       Text(
                                         '${authProvider.checkupCount}',
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontFamily: 'Inter',
-                                          fontSize: 24,
+                                          fontSize: 24 * textScale,
                                           fontWeight: FontWeight.w700,
                                           color: Colors.white,
                                         ),
@@ -300,7 +314,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         'CHECKUPS',
                                         style: TextStyle(
                                           fontFamily: 'Inter',
-                                          fontSize: 11,
+                                          fontSize: 11 * textScale,
                                           fontWeight: FontWeight.w600,
                                           color: Colors.white.withAlpha(153),
                                           letterSpacing: 1,
@@ -316,7 +330,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
 
                       const SizedBox(height: 32),
-                      _buildSectionHeader('DISPLAY'),
+                      _buildSectionHeader('DISPLAY', textScale),
                       const SizedBox(height: 16),
 
                       Consumer<SettingsProvider>(
@@ -332,6 +346,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       Icons.translate,
                                       const Color(0xFFFFAB40),
                                       'Language',
+                                      textScale,
                                     ),
                                     Container(
                                       height: 36,
@@ -345,11 +360,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                             'EN',
                                             settingsProvider.language == 'EN',
                                             () => settingsProvider.setLanguage('EN'),
+                                            textScale,
                                           ),
                                           _buildLanguageOption(
                                             'AM',
                                             settingsProvider.language == 'AM',
                                             () => settingsProvider.setLanguage('AM'),
+                                            textScale,
                                           ), // Amharic
                                         ],
                                       ),
@@ -370,6 +387,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       Icons.text_fields,
                                       const Color(0xFF6B9FFF),
                                       'Text Size',
+                                      textScale,
                                     ),
                                     Container(
                                       padding: const EdgeInsets.symmetric(
@@ -392,9 +410,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                             Icons.arrow_drop_down,
                                             color: Colors.white,
                                           ),
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             fontFamily: 'Inter',
-                                            fontSize: 14,
+                                            fontSize: 14 * textScale,
                                             color: Colors.white,
                                             fontWeight: FontWeight.w500,
                                           ),
@@ -421,7 +439,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
 
                       const SizedBox(height: 32),
-                      _buildSectionHeader('PREFERENCES'),
+                      _buildSectionHeader('PREFERENCES', textScale),
                       const SizedBox(height: 16),
 
                       Consumer<SettingsProvider>(
@@ -436,6 +454,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       Icons.notifications_active,
                                       const Color(0xFFFF6B6B),
                                       'Notifications',
+                                      textScale,
                                       subtitle: 'Updates & Tips',
                                     ),
                                     Switch(
@@ -470,6 +489,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       Icons.wifi_off_rounded,
                                       const Color(0xFF5FFFD7), // Mint
                                       'Offline Mode',
+                                      textScale,
                                       subtitle: 'Save data',
                                     ),
                                     Switch(
@@ -497,7 +517,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
 
                       const SizedBox(height: 32),
-                      _buildSectionHeader('SUPPORT'),
+                      _buildSectionHeader('SUPPORT', textScale),
                       const SizedBox(height: 16),
 
                       _buildGlassCard(
@@ -506,6 +526,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             _buildSupportItem(
                               Icons.help_outline,
                               'Help Center',
+                              textScale,
                               onTap: () => _launchUrl('https://support.google.com'),
                             ),
                             const Padding(
@@ -515,6 +536,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             _buildSupportItem(
                               Icons.lock_outline,
                               'Privacy Policy',
+                              textScale,
                               onTap: () => _launchUrl('https://policies.google.com/privacy'),
                             ),
                             const Padding(
@@ -524,6 +546,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             _buildSupportItem(
                               Icons.logout,
                               'Log Out',
+                              textScale,
                               isDestructive: true,
                               iconColor: const Color(0xFFFF6B6B),
                               onTap: _handleLogout,
@@ -539,7 +562,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           'BLACKSEED AI V0.1.0',
                           style: TextStyle(
                             fontFamily: 'Inter',
-                            fontSize: 12,
+                            fontSize: 12 * textScale,
                             fontWeight: FontWeight.w600,
                             color: Colors.white.withAlpha(77),
                             letterSpacing: 1.5,
@@ -557,12 +580,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
+  Widget _buildSectionHeader(String title, double textScale) {
     return Text(
       title,
       style: TextStyle(
         fontFamily: 'Inter',
-        fontSize: 12,
+        fontSize: 12 * textScale,
         fontWeight: FontWeight.w700,
         color: Colors.white.withAlpha(128),
         letterSpacing: 1.2,
@@ -606,7 +629,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildLanguageOption(String text, bool isSelected, VoidCallback onTap) {
+  Widget _buildLanguageOption(String text, bool isSelected, VoidCallback onTap, double textScale) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -619,7 +642,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           text,
           style: TextStyle(
             fontFamily: 'Inter',
-            fontSize: 12,
+            fontSize: 12 * textScale,
             fontWeight: FontWeight.w700,
             color: isSelected
                 ? const Color(0xFF1A1D29)
@@ -633,7 +656,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _buildSettingItemHeader(
     IconData icon,
     Color iconColor,
-    String title, {
+    String title,
+    double textScale, {
     String? subtitle,
   }) {
     return Row(
@@ -653,9 +677,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           children: [
             Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'Inter',
-                fontSize: 16,
+                fontSize: 16 * textScale,
                 fontWeight: FontWeight.w600,
                 color: Colors.white,
               ),
@@ -666,7 +690,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 subtitle,
                 style: TextStyle(
                   fontFamily: 'Inter',
-                  fontSize: 12,
+                  fontSize: 12 * textScale,
                   fontWeight: FontWeight.w400,
                   color: Colors.white.withAlpha(153),
                 ),
@@ -680,7 +704,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _buildSupportItem(
     IconData icon,
-    String title, {
+    String title,
+    double textScale, {
     bool isDestructive = false,
     Color? iconColor,
     VoidCallback? onTap,
@@ -704,7 +729,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   title,
                   style: TextStyle(
                     fontFamily: 'Inter',
-                    fontSize: 16,
+                    fontSize: 16 * textScale,
                     fontWeight: FontWeight.w600,
                     color: isDestructive
                         ? const Color(0xFFFF6B6B)
@@ -722,5 +747,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       ),
     );
+  }
+
+  double _getTextScale(String textSize) {
+    switch (textSize) {
+      case 'Small':
+        return 0.85;
+      case 'Large':
+        return 1.15;
+      case 'Medium':
+      default:
+        return 1.0;
+    }
   }
 }

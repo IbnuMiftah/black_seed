@@ -24,7 +24,13 @@ class _MainNavigationState extends State<MainNavigation> {
       },
     ),
     const ChatScreen(),
-    const LibraryScreen(),
+    LibraryScreen(
+      onTabChange: (index) {
+        setState(() {
+          _currentIndex = index;
+        });
+      },
+    ),
     const SettingsScreen(),
   ];
 
