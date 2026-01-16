@@ -86,6 +86,17 @@ class ChatProvider extends ChangeNotifier {
     }
   }
 
+  // Load a specific session into the chat view
+  void loadSession(List<Map<String, dynamic>> sessionMessages) {
+    _messages.clear();
+    for (final item in sessionMessages) {
+      if (item['message'] == '[__SESSION_BREAK__]') continue;
+      _messages.add(ChatMessage.fromMap(item));
+    }
+    _historyLoaded = true;
+    notifyListeners();
+  }
+
   // Send a message
   Future<void> sendMessage(String text) async {
     if (text.trim().isEmpty) return;

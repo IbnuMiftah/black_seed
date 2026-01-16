@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../providers/auth_provider.dart';
 import '../providers/settings_provider.dart';
 import '../services/database_service.dart';
+import '../providers/chat_provider.dart';
 
 class LibraryScreen extends StatefulWidget {
   final Function(int)? onTabChange;
@@ -118,6 +119,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
       'preview': preview,
       'timestamp': timestamp,
       'messageCount': messages.length,
+      'messages': messages, // Store full messages to load when tapped
     };
   }
 
@@ -455,6 +457,12 @@ class _LibraryScreenState extends State<LibraryScreen> {
                             session['messageCount'] ?? 0,
                             textScale,
                             () {
+                              // Load session into chat
+                              if (session['messages'] != null) {
+                                Provider.of<ChatProvider>(context, listen: false)
+                                    .loadSession(
+                                        session['messages'] as List<Map<String, dynamic>>);
+                              }
                               // Navigate to Chat tab (index 1)
                               if (widget.onTabChange != null) {
                                 widget.onTabChange!(1);
